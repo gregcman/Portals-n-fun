@@ -1,0 +1,5 @@
+    /**
+            EXTFramebufferObject.glBindFramebufferEXT(
+                EXTFramebufferObject.GL_FRAMEBUFFER_EXT, 0);        
+        // *frame buffer above*/
+        binding bak to the main frame

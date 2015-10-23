@@ -1,0 +1,151 @@
+/*------------------Other Versions that use less space------------------------*/
+// Returns a given point on the curve that is a certain arc length away
+/*
+ * public double arcgive(double length){ /**Given an arc length this function
+ * returns the t-value as long as it is within range/ if
+ * (ARCLENGTH-1<=length){return((double)(1));} if
+ * (length<=1){return((double)(0));} double addval= length% dist; double t =
+ * tspread.get((int) (length/dist)); Point2D.Double It= beziert(0), Ft= It, Pt;
+ * double distance; double derivative; double magnitude = magnitude2;
+ * 
+ * // Moves the distance of the added value while (addval>0){
+ * 
+ * // Finds derivative again It=dBeziert((double)(t)); derivative =
+ * (double)(Math.sqrt(It.x*It.x+It.y*It.y)); Pt=Ft;
+ * 
+ * // finds next t and adds arclength double addTvalue = (double)
+ * (magnitude/derivative); if (addTvalue<0.01) {t+=addTvalue;} else {t+=0.01;}
+ * if (t<1){ Ft=beziert(t); distance = Pt.distance(Ft);; addval-=distance;} }
+ * return t; }
+ */
+
+/** Opposite of arcgive. Gives an arclength for a t-value */
+/*
+ * double tgive(double m){ if (m>=1) {return ARCLENGTH;}
+ * 
+ * // starting variables double length=0; double magnitude = magnitude1;
+ * Point2D.Double It= beziert(0), Ft= It, Pt; double t=0; double distance; double
+ * derivative;
+ * 
+ * while (t<m) {// find derivative of t/distance with a given magnitude
+ * It=dBeziert((double)(t)); derivative =
+ * (double)(Math.sqrt(It.x*It.x+It.y*It.y)); Pt=Ft;
+ * 
+ * // finds next t and adds arclength double addTvalue = (double)
+ * (magnitude/derivative); if (addTvalue<0.01) {t+=addTvalue;} else {t+=0.01;}
+ * if (t<m){ Ft=beziert(t); distance = Pt.distance(Ft); length+=distance;}
+ * 
+ * // repeat }
+ * 
+ * //return length return length; } }
+ */
+
+/*
+ * /** Function that finds where a projectile might hit the curve
+ * 
+ * @return / public double intersect(Projectile P){ // Initializing Cursors.
+ * Start Curve at 0.5 and line at 0. double curveCursor = P.closeTval; if
+ * (P.closeTval==-1) {curveCursor = (double) 0.5;} double lineCursor = 0; boolean
+ * intersectionExists = true; boolean intersectionUnknown = true; double
+ * epsilon=5; double ctr=50; double ctr2=10;
+ * 
+ * Point2D.Double Pt, Dt, PL, DL, IP=new Point2D.Double((double)(0),(double)(0));
+ * 
+ * // Construct Loop while (intersectionExists && intersectionUnknown){
+ * 
+ * // Get points based on the cursors Pt = A.bezcurve.beziert(curveCursor); Dt =
+ * A.bezcurve.beziert((double) (curveCursor+0.001)); PL =
+ * P.trajectory(lineCursor); DL = P.trajectory((double) (lineCursor+0.001));
+ * 
+ * // Find Intersection (Not complete. Maybe a source of error.) while (ctr2>0){
+ * IP = linearIntersect(P.pcoordinates, P.coordinates, Pt, DL); if (IP==null){
+ * curveCursor+=1; Pt = A.bezcurve.beziert(curveCursor); Dt =
+ * A.bezcurve.beziert((double) (curveCursor+0.001)); } else {ctr2=-5;} ctr2-=1;
+ * if (ctr2 == 0) {intersectionExists = false; IP = new
+ * Point2D.Double((double)(0),(double)(0));} } // Get the distances between cursors
+ * and intersection double distL = (double) PL.distance(IP); double distC = (double)
+ * Pt.distance(IP);
+ * 
+ * // Get correct direction double PosL = (double) DL.distance(IP); DL=
+ * P.trajectory((double) (lineCursor-0.001)); double NegL = (double)
+ * (DL.distance(IP)); if (NegL<PosL) {distC*=-1;}
+ * 
+ * double PosC = (double) Dt.distance(IP); Dt= A.bezcurve.beziert((double)
+ * (curveCursor-0.001)); double NegC = (double) Dt.distance(IP); if (NegC<PosC)
+ * {distC*=-1;}
+ * 
+ * // Add or subtract appropriately to get closer to the intersection
+ * lineCursor+=distL;
+ * curveCursor=A.bezcurve.arcgive(A.bezcurve.tgive(curveCursor)+distC);
+ * 
+ * //Loop until it is either determined that there is not intersection or
+ * intersection is found if (Pt.distance(PL)<=epsilon)
+ * {intersectionUnknown=false;} ctr-=1; if (ctr==0 && Pt.distance(PL)>epsilon)
+ * {intersectionExists=false;} } // Return intersection point via curve cursor.
+ * Associate that curve cursor with the projectile if (intersectionExists)
+ * {return curveCursor;} else {return -1;}
+ * 
+ * } }
+ * 
+ *  /** Finds arc length by approximating using t/distance on the curve 
+
+    public void JaksgeneratePoints(boolean spread) {
+        
+        /**
+         * Precision(space) versus time variables. Magnitude1 and magnitude2 are
+         * generally both 1. Lower magnitude makes it more precise but it takes
+         * longer to render.
+         
+        double resolution = 2; // 2 b4
+        double magnitude = 0.5; // 0.5 b4
+        // starting variables
+        double Arclength = 0;
+        Point2D.Double It = parametric(0), Ft = It, Pt;
+        double t = 0;
+        double distance;
+        double derivative;
+
+        // Initializes spread variables
+        double nextVal = 0;
+        if (spread) {
+            savedPoints.clear();
+            savedPoints.add(new PointOnCurve(0, 0, parametric(0)));
+            nextVal += resolution;
+        }
+
+        while (t < 1) {
+            // find derivative of t/distance with a given magnitude
+            It = derivative((t));
+            derivative = (double) (Math.sqrt(It.x * It.x + It.y * It.y));
+            Pt = Ft;
+
+            // finds next t and adds arclength
+            double addTvalue = (double) (magnitude / derivative);
+            if (addTvalue < 0.01) {
+                t += addTvalue;
+            } else {
+                t += 0.01;
+            }
+            if (t < 1) {
+                Ft = parametric(t);
+                distance = Pt.distance(Ft);
+                Arclength += distance;
+            }
+
+            // adds points to the spread if arclength is big enough
+            if (spread && (Arclength > nextVal - 0.1) && t < 0.999) {
+                nextVal += resolution;
+                savedPoints.add(new PointOnCurve(t, (double) Arclength, Ft));
+            }
+
+            // repeat
+        }
+        if (spread) {
+            savedPoints.add(new PointOnCurve(1, (double) Arclength, parametric(1)));
+        }
+
+        // return Arclength and spread
+        ARCLENGTH = Arclength;
+    }
+
+ */
