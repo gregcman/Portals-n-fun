@@ -39,6 +39,5 @@ public class OpenglInitializer {
 		glLoadIdentity();
 		gluOrtho2D(0.0f, Display.getWidth(), 0.0f, Display.getHeight());
 		glMatrixMode(GL_MODELVIEW);
-
 	}
 }

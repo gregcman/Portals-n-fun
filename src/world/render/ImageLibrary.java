@@ -19,14 +19,12 @@ public class ImageLibrary {
 		return imageLib;
 	}
 
+	public static void addImage(String name, String location){
+		imageLib.put(name, getTexture("res/Images/" + location));
+	}
+
 	public static void init() {
 
-		imageLib.put("texture", getTexture("res/gooby"));
-		imageLib.put("texel", getTexture("res/sanic"));
-		imageLib.put("smile", getTexture("res/spoder"));
-		imageLib.put("glass", getTexture("res/sanic"));
-		imageLib.put("zen", getTexture("res/sanic"));
-		imageLib.put("stripes", getTexture("res/sky"));
 	}
 
 	public static void setImageLib(HashMap<String, Texture> imageLib) {

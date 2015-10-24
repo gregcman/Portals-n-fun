@@ -3,7 +3,8 @@ package world.things;
 import math.Complex;
 
 public class Particle {
-	public double rotation;
+	public double angular_position;
+	public double angular_velocity;
 	public double size;
 	public Complex position_vector = new Complex(0, 0);
 	public Complex velocity_vector = new Complex(0, 0);
@@ -13,7 +14,11 @@ public class Particle {
 		
 	}
 
-
+    public void update(){
+        velocity_vector.plus_to(acceleration_vector);
+        position_vector.plus_to(velocity_vector);
+        angular_position += angular_velocity;
+    }
 
 	public void setPositionVector(Complex newPositionVector) {
 		position_vector = newPositionVector;
@@ -28,8 +33,10 @@ public class Particle {
 	}
 
 	public void setRotation(double newRot) {
-		rotation = newRot;
+		angular_position = newRot;
 	}
+
+	public void setAngularVelocity(double newAngRot) { angular_velocity = newAngRot;}
 
 	public void setSize(double newSize) {
 		size = newSize;
@@ -48,7 +55,7 @@ public class Particle {
 	}
 
 	public double getRotation() {
-		return rotation;
+		return angular_position;
 	}
 
 	public double getSize() {

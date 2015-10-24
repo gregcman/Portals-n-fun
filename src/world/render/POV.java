@@ -6,9 +6,15 @@ import org.lwjgl.opengl.Display;
 import world.things.Particle;
 
 public class POV {
-	Particle particle = new Particle();
+    Particle particle = new Particle();
 	private double zoom = 1;
-	
+
+	public void followParticle(Particle p){
+        particle.getPositionVector().setNumber(p.getPositionVector());
+        particle.setSize(32f / p.size);
+        particle.setRotation(-(p.angular_position));
+    }
+
 	public double correctx(double x) {
 		return (x - particle.getPositionVector().x) * particle.getSize() * zoom+ Display.getWidth() / 2;
 	}
@@ -26,9 +32,9 @@ public class POV {
 	}
 	
 	public Complex getCoordinateIn(double x, double y) {
-		Complex undo = new Complex(x, y);
+        Complex undo = new Complex(x, y);
 		undo.plus_to(new Complex(-Display.getWidth() / 2, -Display.getHeight() / 2));
-		undo.times_to(Complex.polar(-particle.getRotation()* Math.PI / 180, 1));
+		undo.times_to(Complex.polar(-particle.getRotation(), 1));
 		undo.plus_to(new Complex(Display.getWidth() / 2, Display.getHeight() / 2));
 		Complex newPos = new Complex(0, 0);
 		newPos.x = (undo.x - (Display.getWidth() >> 1))/ (particle.getSize() * zoom) + particle.getPositionVector().x;

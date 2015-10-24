@@ -46,12 +46,19 @@ public class Complex {
     }
 
     public void rotate_to(double theta){
-        x = x*Math.cos(theta)-y*Math.sin(theta);
+        double x1 = x*Math.cos(theta)-y*Math.sin(theta);
         y = x*Math.sin(theta)+y*Math.cos(theta);
+        x = x1;
+
     }
 
     public Complex rotate(double theta){
         return new Complex(x*Math.cos(theta)-y*Math.sin(theta), x*Math.sin(theta)+y*Math.cos(theta));
+    }
+
+    public void scale_to(double scale){
+        x *= scale;
+        y *= scale;
     }
 
     public Complex scale(double scale){
@@ -148,8 +155,9 @@ public class Complex {
     }
 
     public void times_to(Complex w) {
-        x = x*w.x-y*w.y;
+        double x1 = x*w.x-y*w.y;
         y = x*w.y+y*w.x;
+        x = x1;
     }
 
     /**
@@ -165,8 +173,9 @@ public class Complex {
 
     public void div_to(Complex w) {
         double den=Math.pow(w.mod(),2);
-        x = (x*w.x+y*w.y)/den;
+        double x1 = (x*w.x+y*w.y)/den;
         y = (y*w.x-x*w.y)/den;
+        x = x1;
     }
 
     /**

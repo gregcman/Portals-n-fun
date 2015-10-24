@@ -5,7 +5,7 @@ public class Main {
 
 	public static boolean exit = false;
 
-	private static FrameRateMeasurer frm = new FrameRateMeasurer();
+	private static DisplayHandler.FrameRateMeasurer frm = new DisplayHandler.FrameRateMeasurer();
 
 	public static void main(String[] args) {
 		frm.startFPS();
@@ -13,7 +13,7 @@ public class Main {
 		Controller.init();
 
 		while (!exit) {
-			Controller.act();
+			Controller.iterate();
 			DisplayHandler.act(DisplayHandler.getTitle() + " FPS: "+ frm.updateFPS());
 		}
 

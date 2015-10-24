@@ -1,7 +1,7 @@
 package world.things;
 
+import controlCenter.UserInterface;
 import org.lwjgl.input.Mouse;
-import controlCenter.Controller;
 import math.Complex;
 
 
@@ -14,13 +14,13 @@ public class MovablePoint {
 	/** Creates the movable point and moves it accordingly */
 	public static void act(Complex me, double grabDistance) {
 		if (Mouse.isButtonDown(0)
-				&& inpoint(me, Controller.getWhereMouse(), grabDistance)
+				&& inpoint(me, UserInterface.MouseHandler.getWhereMouse(), grabDistance)
 				&& !notVacant) {
 			withMouse = me;
 			notVacant = true;
 		}
 		if (withMouse == me) {
-			me.setNumber(Controller.getWhereMouse());
+			me.setNumber(UserInterface.MouseHandler.getWhereMouse());
 			if (!Mouse.isButtonDown(0)) {
 				withMouse = null;
 				notVacant = false;

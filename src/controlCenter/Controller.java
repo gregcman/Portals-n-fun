@@ -1,146 +1,72 @@
 package controlCenter;
 
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.glClear;
 
 import java.util.HashMap;
-import java.util.Map;
 
-import math.Complex;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.ReadableColor;
 
 import world.things.Particle;
-import world.portal.data.Portal_Bezier;
-import world.portal.link.PortalLinker;
-import world.portal.link.PortalLinker_Bezier;
-import world.render.FrameBufferHandler;
+import world.render.FrameBufferObject;
 import world.render.ImageLibrary;
 import world.render.POV;
 import world.render.Renderers.Renderer;
-import world.render.Renderers.Renderer_Curves;
-import world.render.Renderers.Renderer_Portals;
-import world.render.Renderers.Renderer_Sprites;
-import world.render.Renderers.Renderer_TexturedShapes;
 import world.things.Entity;
 import world.things.MovablePoint;
-import world.things.Player;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class Controller {
 
-	private static HashMap<String, Entity> pointLib = new HashMap<String, Entity>();
+	private static HashMap<String, Entity> Entity_HashMap = new HashMap<String, Entity>();
 
-	// list which stores the movablePoints in each curve
-	private static Map<String, Entity[]> curveLib = new HashMap<String, Entity[]>();
-	private static Map<String, Boolean> curveLibMoved = new HashMap<String, Boolean>();
-	public static Map<String, Portal_Bezier> bezLib = new HashMap<String, Portal_Bezier>();
-	public static Map<String, PortalLinker_Bezier> linkLib = new HashMap<String, PortalLinker_Bezier>();
+    public static FrameBufferObject extra_frame = new FrameBufferObject();
 
-	private static Complex whereMouse;
+	public static void iterate() {
 
-	// Creates a player
-	private static Player player;
+        UserInterface.MouseHandler.iterate();
+        UserInterface.iterate();
 
-	public static void act() {
-		
-		
-		whereMouse = Renderer.getCamera().getCoordinateIn(Mouse.getX(), Mouse.getY());
+        UserInterface soul = new UserInterface();
+        soul.update(getPlayerEntity());
 
+        for(Entity x : Entity_HashMap.values()){
+            MovablePoint.act(x.getParticle().getPositionVector(), x.getParticle().size);
+            x.getParticle().update();
+        }
 
-		for (int i = 0; i<curveLib.size();i++){
-			curveLibMoved.put(i+"",false);
-			for (Entity x : curveLib.get(i+"")) {
-			MovablePoint.act(x.getParticle().getPositionVector(), x.getParticle().getSize());
-			curveLibMoved.put(i+"",curveLibMoved.get(i+"") || MovablePoint.isNotVacant());
-			}
-		}
-		
-		bezLib.get("curve").revaluate();
-		bezLib.get("curve2").revaluate();
-		// Displays the projectile and also any teleportation that might occur
-		
-		
-		for (int i = 0; i<linkLib.size();i++)
-		{
-			linkLib.get(i+"").update();
-			
-		}
-		for (int i = 0; i<linkLib.size();i++)
-		{
-			linkLib.get(i+"").projectileWork(player.getLocation());
-		
-		}		
+        Entity player = Entity_HashMap.get("player");
+        Particle player_physics = player.getParticle();
 
-		player.act();
-		
-		POV came = Renderer.getCamera();
-		Particle cam = came.getParticle();
+		POV camera = Renderer.getCamera();
+        camera.followParticle(player_physics);
+		camera.setZoom((camera.getZoom() * Math.pow(1.001, Mouse.getDWheel())));
 
-		cam.getPositionVector().setNumber(player.getPlace().getPositionVector());
-		cam.setSize(25f / player.getSprite().getParticle().getSize());
-		cam.setRotation(-(player.getPlace().getRotation() * 180 / Math.PI));
-		came.setZoom((came.getZoom() * Math.pow(1.001, Mouse.getDWheel())));
+        Renderer.setRenderingDimensions(Display.getWidth(), Display.getHeight());
 
 		Renderer.getFill().setColor(ReadableColor.WHITE);
-		player.getSprite().getParticle().setRotation(-Renderer.getCamera().getParticle().getRotation());
-		KeyHandler.keyboardWork();
-		
-				
-		glClear(GL_COLOR_BUFFER_BIT);
-		// Clear the screen buffer	
-		Renderer.testResize();	
-		FrameBufferHandler.beginFrameBuffer();
+        Renderer.testResize();
+
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // *frame buffer below
+
+        FrameBufferObject.setFrameBuffer(extra_frame.getFrameBufferIdentifier());
+        glClear(GL_COLOR_BUFFER_BIT);
 		display();
-		FrameBufferHandler.endFrameBuffer();
-		FrameBufferHandler.drawFrameBuffer();
-		PortalLinker[] plinklist = new PortalLinker[linkLib.size()];
-		for(int i = 0; i<linkLib.size(); i++){
-			plinklist[i] = linkLib.get(i+"");
-		}
-		Renderer_Portals.draw(plinklist);
-		//Renderer_Portals.drawTrace(new PortalLinker[]{linkLib.get("0"), linkLib.get("1")});
-		
-		Renderer.getFill().set(255, 255, 255);
-		player.getSprite().setImage(ImageLibrary.get("smile"));
-		Renderer_Sprites.drawSprite(player.getSprite());
+        FrameBufferObject.removeFrameBuffer();
+
+		Renderer.Renderer_FrameBuffer.drawFrameBuffer(extra_frame.getTexture());
+
 		Display.update();
 	}
 
 	public static void display() {
-		
-		for (int j = -5; j<5;j++)
-		{
-			for (int i = -5; i<5;i++)
-			{
-				Renderer_TexturedShapes.drawQuad(i*1000, j*1000, 1000, 1000, (i*j)*System.currentTimeMillis()/10, ImageLibrary.get("stripes"));
-			}
+		for (Entity x : Entity_HashMap.values()) {
+			Renderer.Renderer_Entity.draw(x);
 		}
 
-		for (Entity x : curveLib.get("0")) {
-			Renderer_Sprites.drawSprite(x);
-		}
-
-		for (Entity x : curveLib.get("1")) {
-			Renderer_Sprites.drawSprite(x);
-		}
-
-		Renderer.getFill().set(222, 255, 80);
-		Renderer_Curves.display(bezLib.get("curve").getCurve());
-		Renderer.getFill().set(0, 60, 80);
-		Renderer_Curves.display(bezLib.get("curve2").getCurve());
-
-		Renderer.getFill().set(255, 255, 255);
-		player.getSprite().setImage(ImageLibrary.get("smile"));
-		Renderer_Sprites.drawSprite(player.getSprite());
-	}
-
-	public static Player getPlayer() {
-		return player;
-	}
-
-	public static Complex getWhereMouse() {
-		return whereMouse;
 	}
 
 	public static void init() {
@@ -148,52 +74,40 @@ public class Controller {
 		Renderer.init();
 		ImageLibrary.init();
 
-		pointLib.put("00",new Entity(-160, -40, 20, ImageLibrary.get("texture")));
-		pointLib.put("01", new Entity(0, -40, 30, ImageLibrary.get("zen")));
-		pointLib.put("02", new Entity(160, -40, 40, ImageLibrary.get("texture")));
-		pointLib.put("10", new Entity(-160, 50, 30, ImageLibrary.get("glass")));
-		pointLib.put("11", new Entity(0, 50, 20, ImageLibrary.get("texel")));
-		pointLib.put("12", new Entity(160, 50, 40, ImageLibrary.get("zen")));
-		
-		curveLib.put("0", new Entity[3]);
-		curveLib.put("1", new Entity[3]);
-		
-		putPoints(curveLib.get("0"), "0",3);
-		putPoints(curveLib.get("1"), "1",3);
-					
-		Complex[] Pointd = new Complex[3];
+        ImageLibrary.addImage("texture", "gooby");
+        ImageLibrary.addImage("texel", "sanic");
+        ImageLibrary.addImage("smile", "spoder");
+        ImageLibrary.addImage("glass", "sanic");
+        ImageLibrary.addImage("zen", "sky");
+        ImageLibrary.addImage("stripes", "sky");
 
-		for (int i = 0; i < 3; i++) {
-			Pointd[i] = (pointLib.get("0" + i)).getParticle().getPositionVector();
-		}
 
-		Complex[] Pointc = new Complex[3];
+		Entity_HashMap.put("00", new Entity(-160, -40, 20, ImageLibrary.get("texture")));
+		Entity_HashMap.put("01", new Entity(0, -40, 30, ImageLibrary.get("zen")));
+		Entity_HashMap.put("02", new Entity(160, -40, 40, ImageLibrary.get("texture")));
+		Entity_HashMap.put("10", new Entity(-160, 50, 30, ImageLibrary.get("glass")));
+		Entity_HashMap.put("11", new Entity(0, 50, 20, ImageLibrary.get("texel")));
+		Entity_HashMap.put("12", new Entity(160, 50, 40, ImageLibrary.get("zen")));
 
-		for (int i = 0; i < 3; i++) {
-			Pointc[i] = (pointLib.get("1" + i)).getParticle().getPositionVector();
-		}
-		
-		bezLib.put("curve", new Portal_Bezier(Pointc));
-		bezLib.put("curve2", new Portal_Bezier(Pointd));
-			
-		player = new Player(new Complex(0, 0));
+        for (int i = 0; i < 100; i++) {
+            Entity_HashMap.put( rand(0,1000) + "",generateRandomEntity());
+        }
 
-		bezLib.get("curve").revaluate();
-		bezLib.get("curve2").revaluate();
-		
-		PortalLinker_Bezier link, link2;
-		
-		link = new PortalLinker_Bezier(bezLib.get("curve"), bezLib.get("curve2"), 0);
-		link2 = new PortalLinker_Bezier(bezLib.get("curve2"), bezLib.get("curve"), 0);
-		
-		linkLib.put("0", link);
-		linkLib.put("1", link2);
-	}
-	
-	public static void putPoints(Entity[] list, String name, int numberOfPoints) {
-		for (int i = 0; i < numberOfPoints; i++) {
-			list[i] = (pointLib.get(name + i));
-		}
+        Entity_HashMap.put("player", new Entity(12, 12, 12, ImageLibrary.get("smile")));
+
 	}
 
+    public static String names[] = {"texture", "zen", "glass", "texel", "smile"};
+
+    public static double rand(float start, float end){
+        return (Math.random() * (end - start) + start);
+    }
+
+    public static Entity generateRandomEntity(){
+        return new Entity(rand(-1000, 1000), rand(-1000, 1000), rand(4, 256), ImageLibrary.get(names[(int)rand(0, names.length-1)]));
+    }
+
+    public static Entity getPlayerEntity(){
+        return Entity_HashMap.get("player");
+    }
 }
