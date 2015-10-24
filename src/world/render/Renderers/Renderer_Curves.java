@@ -1,9 +1,10 @@
 package world.render.Renderers;
 
-import java.awt.geom.Point2D;
+
 import java.util.ArrayList;
 
 import math.Calculation;
+import math.Complex;
 import math.curve.Curve;
 
 public class Renderer_Curves {
@@ -16,8 +17,8 @@ public class Renderer_Curves {
 
 	/** Draws tangent and normal */
 	public static void drawCrossHatch(double t, Curve curve) {
-		Point2D.Double Pt = curve.parametric(t);
-		Point2D.Double Pte = curve.normal(t);
+		Complex Pt = curve.parametric(t);
+		Complex Pte = curve.normal(t);
 		double ang = Calculation.getAngle(Pte);
 		Renderer.getFill().set(50, 40, 200, 100);
 		Renderer_Shapes.drawCircle(Pt.x, Pt.y, 5, 10);

@@ -1,15 +1,16 @@
 package world.portal.data;
 
-import java.awt.geom.Point2D;
+
 import java.util.ArrayList;
 
+import math.Complex;
 import math.curve.BezierCurve;
 
 public class Portal_Bezier extends Portal {
 
-	public Portal_Bezier(Point2D.Double[] m) {
-		ArrayList<Point2D.Double> ps = new ArrayList<Point2D.Double>();
-		for (Point2D.Double mpoint : m) {
+	public Portal_Bezier(Complex[] m) {
+		ArrayList<Complex> ps = new ArrayList<Complex>();
+		for (Complex mpoint : m) {
 			ps.add(mpoint);
 		}
 		curve = new BezierCurve(ps);

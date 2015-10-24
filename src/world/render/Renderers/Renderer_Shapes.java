@@ -14,8 +14,7 @@ import static org.lwjgl.opengl.GL11.glRotated;
 import static org.lwjgl.opengl.GL11.glTranslated;
 import static org.lwjgl.opengl.GL11.glVertex2d;
 
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
+import math.Complex;
 
 import org.lwjgl.opengl.Display;
 
@@ -68,11 +67,7 @@ public class Renderer_Shapes extends Renderer {
 		glEnable(GL_TEXTURE_2D);
 	}
 
-	public static void drawLine(Line2D line) {
-		drawLine(line.getP1(), line.getP2());
-	}
-
-	public static void drawLine(Point2D p1, Point2D p2) {
-		drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+	public static void drawLine(Complex p1, Complex p2) {
+		drawLine(p1.x, p1.y, p2.x, p2.y);
 	}
 }

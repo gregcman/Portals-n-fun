@@ -3,15 +3,15 @@ package controlCenter;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.glClear;
 
-import java.awt.geom.Point2D;
 import java.util.HashMap;
 import java.util.Map;
 
+import math.Complex;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.ReadableColor;
 
-import world.physic.Particle;
+import world.things.Particle;
 import world.portal.data.Portal_Bezier;
 import world.portal.link.PortalLinker;
 import world.portal.link.PortalLinker_Bezier;
@@ -37,7 +37,7 @@ public class Controller {
 	public static Map<String, Portal_Bezier> bezLib = new HashMap<String, Portal_Bezier>();
 	public static Map<String, PortalLinker_Bezier> linkLib = new HashMap<String, PortalLinker_Bezier>();
 
-	private static Point2D.Double whereMouse;
+	private static Complex whereMouse;
 
 	// Creates a player
 	private static Player player;
@@ -51,7 +51,7 @@ public class Controller {
 		for (int i = 0; i<curveLib.size();i++){
 			curveLibMoved.put(i+"",false);
 			for (Entity x : curveLib.get(i+"")) {
-			MovablePoint.act(x.getParticle().getCoord().getPosition(), x.getParticle().getSize());
+			MovablePoint.act(x.getParticle().getPositionVector(), x.getParticle().getSize());
 			curveLibMoved.put(i+"",curveLibMoved.get(i+"") || MovablePoint.isNotVacant());
 			}
 		}
@@ -77,7 +77,7 @@ public class Controller {
 		POV came = Renderer.getCamera();
 		Particle cam = came.getParticle();
 
-		cam.getCoord().getPosition().setLocation(player.getPlace().getCoord().getPosition());
+		cam.getPositionVector().setNumber(player.getPlace().getPositionVector());
 		cam.setSize(25f / player.getSprite().getParticle().getSize());
 		cam.setRotation(-(player.getPlace().getRotation() * 180 / Math.PI));
 		came.setZoom((came.getZoom() * Math.pow(1.001, Mouse.getDWheel())));
@@ -139,7 +139,7 @@ public class Controller {
 		return player;
 	}
 
-	public static Point2D.Double getWhereMouse() {
+	public static Complex getWhereMouse() {
 		return whereMouse;
 	}
 
@@ -161,22 +161,22 @@ public class Controller {
 		putPoints(curveLib.get("0"), "0",3);
 		putPoints(curveLib.get("1"), "1",3);
 					
-		Point2D.Double[] Pointd = new Point2D.Double[3];
+		Complex[] Pointd = new Complex[3];
 
 		for (int i = 0; i < 3; i++) {
-			Pointd[i] = (pointLib.get("0" + i)).getParticle().getCoord().getPosition();
+			Pointd[i] = (pointLib.get("0" + i)).getParticle().getPositionVector();
 		}
 
-		Point2D.Double[] Pointc = new Point2D.Double[3];
+		Complex[] Pointc = new Complex[3];
 
 		for (int i = 0; i < 3; i++) {
-			Pointc[i] = (pointLib.get("1" + i)).getParticle().getCoord().getPosition();
+			Pointc[i] = (pointLib.get("1" + i)).getParticle().getPositionVector();
 		}
 		
 		bezLib.put("curve", new Portal_Bezier(Pointc));
 		bezLib.put("curve2", new Portal_Bezier(Pointd));
 			
-		player = new Player(new Point2D.Double(0, 0));
+		player = new Player(new Complex(0, 0));
 
 		bezLib.get("curve").revaluate();
 		bezLib.get("curve2").revaluate();

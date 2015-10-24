@@ -1,19 +1,18 @@
 package world.things;
 
-import java.awt.geom.Point2D;
-
 import org.lwjgl.input.Mouse;
-
 import controlCenter.Controller;
+import math.Complex;
+
 
 public class MovablePoint {
 
-	public static Point2D.Double withMouse;
+	public static Complex withMouse;
 
 	public static boolean notVacant;
 
 	/** Creates the movable point and moves it accordingly */
-	public static void act(Point2D.Double me, double grabDistance) {
+	public static void act(Complex me, double grabDistance) {
 		if (Mouse.isButtonDown(0)
 				&& inpoint(me, Controller.getWhereMouse(), grabDistance)
 				&& !notVacant) {
@@ -21,7 +20,7 @@ public class MovablePoint {
 			notVacant = true;
 		}
 		if (withMouse == me) {
-			me.setLocation(Controller.getWhereMouse());
+			me.setNumber(Controller.getWhereMouse());
 			if (!Mouse.isButtonDown(0)) {
 				withMouse = null;
 				notVacant = false;
@@ -30,9 +29,9 @@ public class MovablePoint {
 
 	}
 
-	public static boolean inpoint(Point2D.Double me, Point2D.Double point,double grabDistance) {
+	public static boolean inpoint(Complex me, Complex point,double grabDistance) {
 		/** Tells you if a given point is in the movablePoint */
-		return me.distance(point) < grabDistance ? true : false;
+		return me.minus(point).mod() < grabDistance ? true : false;
 	}
 
 	public static boolean isNotVacant() {

@@ -1,34 +1,33 @@
 package world.things;
 
-import java.awt.geom.Point2D;
 
+import math.Complex;
 import math.Calculation;
-import world.physic.Particle;
-import world.physic.Projectile;
+import math.Projectile;
 import world.render.ImageLibrary;
 
 public class Player {
 
 	private Particle place = new Particle();
 	private Projectile location = new Projectile(place);
-	private Point2D.Double acceleration = new Point2D.Double(0f, 0f);
+	private Complex acceleration = new Complex(0f, 0f);
 	private double friction = 0.95f;
 	private Entity sprite;
 	
 	{place.setSize(25);}
 
-	public Player(Point2D.Double C) {
-		location.getCoords().getCoord().getPosition().setLocation(C);
+	public Player(Complex C) {
+		location.getCoords().getPositionVector().setNumber(C);
 		sprite = new Entity(ImageLibrary.get("smile"), C);
 	}
 
 	public void act() {
 		sprite.getParticle().setSize(location.getCoords().getSize());
 		move();
-		sprite.getParticle().getCoord().getPosition().setLocation(location.getCoords().getCoord().getPosition());
+		sprite.getParticle().getPositionVector().setNumber(location.getCoords().getPositionVector());
 	}
 
-	public Point2D.Double getAcceleration() {
+	public Complex getAcceleration() {
 		return acceleration;
 	}
 
@@ -45,12 +44,12 @@ public class Player {
 	}
 
 	public void move() {
-		Calculation.translate(location.getVelocity(), Calculation.dilatePoint(acceleration, sprite.getParticle().getSize() / 25));
-		Calculation.translate(location.getCoords().getCoord().getPosition(), location.getVelocity());
-		Calculation.dilate(location.getVelocity(), friction);
+		location.getVelocity().plus_to(Calculation.dilatePoint(acceleration, sprite.getParticle().getSize() / 25));
+		location.getCoords().getPositionVector().plus_to(location.getVelocity());
+		location.getVelocity().scale(friction);
 	}
 
-	public void setAcceleration(Point2D.Double acceleration) {
+	public void setAcceleration(Complex acceleration) {
 		this.acceleration = acceleration;
 	}
 

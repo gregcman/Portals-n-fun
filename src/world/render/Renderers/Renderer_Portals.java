@@ -17,9 +17,8 @@ import static org.lwjgl.opengl.GL11.glTranslated;
 import static org.lwjgl.opengl.GL11.glVertex2d;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 
-import java.awt.geom.Point2D;
-
 import math.Calculation;
+import math.Projectile;
 import math.curve.Curve;
 
 import org.lwjgl.opengl.Display;
@@ -27,6 +26,7 @@ import org.lwjgl.opengl.Display;
 import world.portal.link.PortalLinker;
 import world.render.FrameBufferHandler;
 import world.portal.link.*;
+import math.Complex;
 
 public class Renderer_Portals extends Renderer {
 	
@@ -61,43 +61,43 @@ public class Renderer_Portals extends Renderer {
 		double res = bez.getARCLENGTH();
 		for (double i = 0; i < res; i++) {
 			double foo = bez.arcgive((bez.getARCLENGTH() * bez2.tgive(i/ res)));
-			Point2D.Double point = bez.parametric(foo);
+			Complex point = bez.parametric(foo);
 
-			Calculation.translate(point, -camera.getParticle().getCoord().getPosition().x,-camera.getParticle().getCoord().getPosition().y);
-			Calculation.rotatePoint(point, (camera.getParticle().getRotation()* Math.PI / 180));
-			Calculation.translate(point, camera.getParticle().getCoord().getPosition().x,camera.getParticle().getCoord().getPosition().y);
+			point.minus_to(camera.getParticle().getPositionVector());
+			point.rotate_to(camera.getParticle().getRotation()* Math.PI / 180);;
+			point.plus_to(camera.getParticle().getPositionVector());
 
-			Point2D.Double point2 = bez2.parametric(foo);
+			Complex point2 = bez2.parametric(foo);
 
 			glTexCoord2d(camera.correctx(point.x) / Display.getWidth(),camera.correcty(point.y) / Display.getHeight());
 			glVertex2d(camera.correctx(point2.x), camera.correcty(point2.y));
 
 			double foo2 = 1 - bez
 					.arcgive((double) (bez2.getARCLENGTH() * (i / res)));
-			Point2D.Double point3 = bez.parametric(foo2);
-			Point2D.Double delt = bez.normal(foo2);
+			Complex point3 = bez.parametric(foo2);
+			Complex delt = bez.normal(foo2);
 
-			double angle = (double) ((Math.atan2(point2.y - camera.getParticle().getCoord().getPosition().y,point2.x - camera.getParticle().getCoord().getPosition().x)) - Calculation.getAngle(delt));
+            double angle = (double) ((Math.atan2(point2.y - camera.getParticle().getPositionVector().y,point2.x - camera.getParticle().getPositionVector().x)) - Calculation.getAngle(delt));
 
-			Calculation.rotatePoint(delt, angle);
+			delt.rotate_to(angle);
 
 			double arcRatio = (double) (bez.getARCLENGTH() / bez2.getARCLENGTH());
 
-			Calculation.dilate(delt,(arcRatio) * (Calculation.getMagnitude(delt)));
-			Calculation.translate(point3, delt);
+			delt.scale((arcRatio) * (Calculation.getMagnitude(delt)));
+			point3.plus_to(delt);
 
-			Calculation.translate(point3, -camera.getParticle().getCoord().getPosition().x,-camera.getParticle().getCoord().getPosition().y);
-			Calculation.rotatePoint(point3, (double) (camera.getParticle().getRotation()* Math.PI / 180));
-			Calculation.translate(point3, camera.getParticle().getCoord().getPosition().x,camera.getParticle().getCoord().getPosition().y);
+			point3.minus_to(camera.getParticle().getPositionVector());
+		    point3.rotate_to(camera.getParticle().getRotation() * Math.PI / 180);;
+			point3.plus_to(camera.getParticle().getPositionVector());
 
 			glTexCoord2d(camera.correctx(point3.x) / Display.getWidth(),camera.correcty(point3.y) / Display.getHeight());
 
-			Point2D.Double point4 = bez2.parametric(foo2);
-			Point2D.Double delt2 = bez2.normal(foo2);
-			Calculation.rotatePoint(delt2, angle);
+			Complex point4 = bez2.parametric(foo2);
+			Complex delt2 = bez2.normal(foo2);
+			delt2.rotate_to(angle);
 
-			Calculation.dilate(delt2,(arcRatio) * (Calculation.getMagnitude(delt2)));
-			Calculation.translate(point4, delt);
+			delt2.scale((arcRatio) * (Calculation.getMagnitude(delt2)));
+			point4.plus_to(delt);
 
 			glVertex2d(camera.correctx(point4.x), camera.correcty(point4.y));
 		}
@@ -114,7 +114,7 @@ public class Renderer_Portals extends Renderer {
 		for (double i = 0; i < Display.getWidth(); i += resx) {
 			for (double j = 0; j < Display.getHeight(); j += resy) {
 
-				world.physic.Projectile proj = new world.physic.Projectile(camera.getParticle().getCoord().getPosition(), camera.getCoordinateIn(i, j));
+				Projectile proj = new Projectile(camera.getParticle().getPositionVector(), camera.getCoordinateIn(i, j));
 				
 				boolean d = false;
 				
@@ -127,17 +127,17 @@ public class Renderer_Portals extends Renderer {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
 				
-				Point2D.Double cam = camera.getParticle().getCoord().getPosition();
-				Point2D.Double pro = proj.getCoords().getCoord().getPosition();
+				Complex cam = camera.getParticle().getPositionVector();
+				Complex pro = proj.getCoords().getPositionVector();
 
-				Calculation.translate(pro, -cam.x,-cam.y);
-				Calculation.rotatePoint(pro,(camera.getParticle().getRotation() * Math.PI / 180));
-				Calculation.translate(pro, cam.x,cam.y);
+				pro.minus_to(cam);
+				pro.rotate_to(camera.getParticle().getRotation() * Math.PI / 180);;
+				pro.plus_to(cam);
 				
 				if (d)
 				{
 				glBegin(GL_QUADS);
-				Point2D.Double phelp = proj.getCoords().getCoord().getPosition();
+				Complex phelp = proj.getCoords().getPositionVector();
 
 					glTexCoord2d(camera.correctx(phelp.x) / Display.getWidth(),camera.correcty(phelp.y) / Display.getHeight());
 					glVertex2d(i, j);

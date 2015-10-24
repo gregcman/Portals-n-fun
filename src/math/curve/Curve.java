@@ -1,18 +1,18 @@
 package math.curve;
 
-import java.awt.geom.Point2D;
+import math.Complex;
 import java.util.ArrayList;
 
 public abstract class Curve {
 	public class PointOnCurve {
-		private Point2D.Double coords;
+		private Complex coords;
 		private double t;
 		private double arcLength;
 
 		public PointOnCurve() {
 		}
 
-		public PointOnCurve(double tvalue, double arc, Point2D.Double point) {
+		public PointOnCurve(double tvalue, double arc, Complex point) {
 			coords = point;
 			t = tvalue;
 			arcLength = arc;
@@ -22,7 +22,7 @@ public abstract class Curve {
 			return arcLength;
 		}
 
-		public Point2D.Double getCoords() {
+		public Complex getCoords() {
 			return coords;
 		}
 
@@ -34,7 +34,7 @@ public abstract class Curve {
 			this.arcLength = arcLength;
 		}
 
-		public void setCoords(Point2D.Double coords) {
+		public void setCoords(Complex coords) {
 			this.coords = coords;
 		}
 
@@ -48,7 +48,7 @@ public abstract class Curve {
 
 	public abstract double arcgive(double f);
 
-	public abstract Point2D.Double derivative(double f); // outputs the normal
+	public abstract Complex derivative(double f); // outputs the normal
 
 	public double getARCLENGTH() {
 		return ARCLENGTH;
@@ -58,9 +58,9 @@ public abstract class Curve {
 		return savedPoints;
 	}
 
-	public abstract Point2D.Double normal(double f); // outputs the normal
+	public abstract Complex normal(double f); // outputs the normal
 
-	public abstract Point2D.Double parametric(double f); // outputs a point for a
+	public abstract Complex parametric(double f); // outputs a point for a
 														// given t value
 
 	public abstract double tgive(double f);

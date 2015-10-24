@@ -1,8 +1,7 @@
 package controlCenter;
 
-import java.awt.geom.Point2D;
-
 import math.Calculation;
+import math.Complex;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -29,7 +28,7 @@ public class KeyHandler {
 			}
 
 
-		Point2D.Double addvel = new Point2D.Double(0, 0);
+		Complex addvel = new Complex(0, 0);
 		if (Keyboard.isKeyDown(Keyboard.KEY_UP)
 				|| Keyboard.isKeyDown(Keyboard.KEY_W)) {
 			addvel.y += 1;
@@ -55,13 +54,13 @@ public class KeyHandler {
 			Controller.getPlayer().getPlace().setRotation((Controller.getPlayer().getPlace().getRotation() - 0.03));
 		}
 
-		double foo = Calculation.getMagnitude(addvel);
+		double foo = addvel.mod();
 		if (foo != 0) {
-			Calculation.dilate(addvel, (Controller.getPlayer().getPlace().getSize() / 50f)/ foo);
-		}
+			addvel.scale((Controller.getPlayer().getPlace().getSize() / 50f) / foo);
+        }
 
-		Calculation.rotatePoint(addvel, Controller.getPlayer().getPlace().getRotation());
-		Calculation.translate(Controller.getPlayer().getLocation().getVelocity(), addvel);
+        addvel.times_to(Complex.polar(Controller.getPlayer().getPlace().getRotation(), 1));
+		Controller.getPlayer().getLocation().getVelocity().plus_to(addvel);
 	}
 	
 	public static boolean onceKey(int key){			

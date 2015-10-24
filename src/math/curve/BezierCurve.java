@@ -1,20 +1,20 @@
 package math.curve;
 
-import java.awt.geom.Point2D;
+
 import java.util.ArrayList;
 
-import math.Calculation;
+import math.Complex;
 
 public class BezierCurve extends Curve {
-	public ArrayList<Point2D.Double> controlPoints = new ArrayList<Point2D.Double>(); // Control
+	public ArrayList<Complex> controlPoints = new ArrayList<>(); // Control
 	// points
-	ArrayList<Point2D.Double> tangentPoints = new ArrayList<Point2D.Double>(); // Derivative
+	ArrayList<Complex> tangentPoints = new ArrayList<>(); // Derivative
 																				// point;
 
 	public BezierCurve() {
 	}
 
-	public BezierCurve(ArrayList<Point2D.Double> ps) {
+	public BezierCurve(ArrayList<Complex> ps) {
 		controlPoints = ps;
 	}
 
@@ -47,7 +47,7 @@ public class BezierCurve extends Curve {
 
 	/** returns the derivative which is the tangent */
 	@Override
-	public Point2D.Double derivative(double t) {
+	public Complex derivative(double t) {
 		gendpts();
 		return getPoint(tangentPoints, t).get(0);
 	}
@@ -55,11 +55,11 @@ public class BezierCurve extends Curve {
 	/** Adds the sets up the control points for the tangent points */
 	public void gendpts() {
 		tangentPoints.clear();
-		Point2D.Double p0 = controlPoints.get(0);
+		Complex p0 = controlPoints.get(0);
 		for (int i = 0; i < controlPoints.size() - 1; i++) {
 
-			Point2D.Double p1 = controlPoints.get(i + 1);
-			Point2D.Double p = new Point2D.Double((p1.x - p0.x)
+			Complex p1 = controlPoints.get(i + 1);
+			Complex p = new Complex((p1.x - p0.x)
 					* (controlPoints.size() - 1), (p1.y - p0.y)
 					* (controlPoints.size() - 1));
 			tangentPoints.add(p);
@@ -68,42 +68,42 @@ public class BezierCurve extends Curve {
 	}
 
 
-	public ArrayList<Point2D.Double> getControlPoints() {
+	public ArrayList<Complex> getControlPoints() {
 		return controlPoints;
 	}
 
 	/*------------------------------------------------------------------------------------------------*/
 
 
-	public ArrayList<Point2D.Double> getTangentPoints() {
+	public ArrayList<Complex> getTangentPoints() {
 		return tangentPoints;
 	}
 
-	public ArrayList<Point2D.Double> giveCoor() {
+	public ArrayList<Complex> giveCoor() {
 		return controlPoints;
 	}
 
 	@Override
-	public Point2D.Double normal(double t) // returns the normal, rotates the
+	public Complex normal(double t) // returns the normal, rotates the
 											// tangent 90 degrees
 	{
 		gendpts();
-		Point2D.Double p = derivative(t);
-		Calculation.rotatePoint(p, (Double) Math.PI / 2);
+		Complex p = derivative(t);
+		p.times_to(new Complex (Math.PI / 2, 1));
 		return p;
 	}
 
 	/** returns the point on the curve for given t */
 	@Override
-	public Point2D.Double parametric(double t) {
+	public Complex parametric(double t) {
 		return getPoint(controlPoints, t).get(0);
 	}
 
-	public void setControlPoints(ArrayList<Point2D.Double> controlPoints) {
+	public void setControlPoints(ArrayList<Complex> controlPoints) {
 		this.controlPoints = controlPoints;
 	}
 
-	public void setTangentPoints(ArrayList<Point2D.Double> tangentPoints) {
+	public void setTangentPoints(ArrayList<Complex> tangentPoints) {
 		this.tangentPoints = tangentPoints;
 	}
 
@@ -111,7 +111,7 @@ public class BezierCurve extends Curve {
 	@Override
 	public double tgive(double t) {
 		if (t >= 1) {
-			return ((Double) ARCLENGTH);
+			return (ARCLENGTH);
 		}
 		if (t <= 0) {
 			return (0);
@@ -136,13 +136,13 @@ public class BezierCurve extends Curve {
 
 	/*---------------------Black box stuff to work with beziert-------------------------*/
 	/** Loops the list until value of the curve is found */
-	private ArrayList<Point2D.Double> getPoint(ArrayList<Point2D.Double> plist,double t) {
+	private ArrayList<Complex> getPoint(ArrayList<Complex> plist,double t) {
 		int size = plist.size() - 1;
-		Point2D.Double oldpoint = new Point2D.Double(plist.get(0).x,
+		Complex oldpoint = new Complex(plist.get(0).x,
 				plist.get(0).y);
-		ArrayList<Point2D.Double> newpoints = new ArrayList<Point2D.Double>();
+		ArrayList<Complex> newpoints = new ArrayList<Complex>();
 		for (int i = 0; i < size; i++) {
-			Point2D.Double newpoint = plist.get(i + 1);
+			Complex newpoint = plist.get(i + 1);
 			newpoints.add(linearbez(t, oldpoint, newpoint));
 			oldpoint = newpoint;
 		}
@@ -154,25 +154,25 @@ public class BezierCurve extends Curve {
 	}
 
 	/** Goes with getLines. Linearly interpolates the points together */
-	private Point2D.Double linearbez(double t, Point2D.Double p0, Point2D.Double p1) {
+	private Complex linearbez(double t, Complex p0, Complex p1) {
 		double help = 1 - t;
-		return new Point2D.Double(p0.x * (help) + p1.x * t, p0.y * (help) + p1.y* t);
+		return new Complex(p0.x * (help) + p1.x * t, p0.y * (help) + p1.y* t);
 	}
 
 	public void generatePoints(double resolution) {
 		gendpts();
 		savedPoints.clear();
-		Point2D.Double current = new Point2D.Double();
+		Complex current = new Complex(0, 0);
 		ARCLENGTH = 0;
 		for (int i = 0; i < resolution+1; i++) {
 			
-			Point2D.Double pt = parametric(i / resolution);
+			Complex pt = parametric(i / resolution);
 
-			ARCLENGTH += current.distance(pt);
+			ARCLENGTH += current.minus(pt).mod();
 			
 			savedPoints.add(new PointOnCurve(i/ resolution, ARCLENGTH,   pt));
 			
-			current.setLocation(pt);
+			current.setNumber(pt);
 		}
 
 	}
