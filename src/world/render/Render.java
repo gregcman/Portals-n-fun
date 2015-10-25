@@ -3,7 +3,8 @@ package world.render;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.Color;
 
-import static org.lwjgl.opengl.GL11.glColor4d;
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.util.glu.GLU.gluOrtho2D;
 
 /**
  * Created by The Phantom on 10/24/2015.
@@ -11,8 +12,6 @@ import static org.lwjgl.opengl.GL11.glColor4d;
 public class Render {
     public static Color stroke = new Color();
     public static Color fill = new Color();
-    public static int texture_dimensions_width;
-    public static int texture_dimensions_height;
 
     public static Color getFill() {
         return fill;
@@ -33,14 +32,36 @@ public class Render {
 
     public static void testResize() {
         if (Display.wasResized()) {
-            OpenglInitializer.resizeGL();
+            resizeGL();
         }
     }
 
     public static void init() {
         // OpenGL
-        OpenglInitializer.initGL();
-        OpenglInitializer.resizeGL();
+        initGL();
+        resizeGL();
+    }
+
+    public static void initGL() {
+
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_DEPTH_TEST);
+
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+
+    public static void resizeGL() {
+
+        // 2D Scene
+        glViewport(0, 0, Display.getWidth(), Display.getHeight());
+        glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        gluOrtho2D(0.0f, Display.getWidth(), 0.0f, Display.getHeight());
+        glMatrixMode(GL_MODELVIEW);
     }
 
 }

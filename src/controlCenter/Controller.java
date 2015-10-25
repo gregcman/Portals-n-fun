@@ -1,113 +1,88 @@
 package controlCenter;
 
 
-import java.util.HashMap;
-
+import math.Calculation;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.ReadableColor;
-
-import world.things.Particle;
-import world.render.FrameBufferObject;
-import world.render.ImageLibrary;
-import world.render.POV;
-import world.render.Renderers.Renderer;
+import world.World;
+import world.render.*;
 import world.things.Entity;
 import world.things.MovablePoint;
 
-import static org.lwjgl.opengl.GL11.*;
+import world.things.Particle;
 
 public class Controller {
 
-	private static HashMap<String, Entity> Entity_HashMap = new HashMap<String, Entity>();
-
     public static FrameBufferObject extra_frame = new FrameBufferObject();
+    public static String names[] = {"texture", "zen", "glass", "texel", "smile"};
+    public static POV mainCamera;
+    public static World worldOne;
 
-	public static void iterate() {
+    public static void iterate() {
+        //Dealing with the user input
 
-        UserInterface.MouseHandler.iterate();
         UserInterface.iterate();
-
         UserInterface soul = new UserInterface();
         soul.update(getPlayerEntity());
 
-        for(Entity x : Entity_HashMap.values()){
-            MovablePoint.act(x.getParticle().getPositionVector(), x.getParticle().size);
+
+        //Dealing with the Camera
+        WorldShapes.setCamera(mainCamera);
+        mainCamera.setZoom(mainCamera.getZoom() * Math.pow(1.001, Mouse.getDWheel()));
+        mainCamera.followParticle(mainCamera.world.Entity_HashMap.get("player").getParticle());
+        mainCamera.iterate();
+        mainCamera.entityDrag();        //Deals with dragging points
+
+        //Update the physics
+        updateWorld(worldOne);
+
+        //Rendering and stuff
+        Render.testResize();
+
+        FrameBufferObject.setFrameBuffer(extra_frame.getFrameBufferIdentifier()); //applies the extra framebuffer
+        mainCamera.render();
+        FrameBufferObject.setFrameBuffer(0); //applies the normal screen
+
+        //Drawing the framebuffer
+        HUDShapes.drawTexturedQuad(0, 0, Display.getWidth(), Display.getHeight(), extra_frame.getTexture(), Display.getWidth(), Display.getHeight());
+        Display.update();
+    }
+
+    public static void updateWorld(World w){
+        for (Entity x : w.Entity_HashMap.values()) {
             x.getParticle().update();
         }
+    }
 
-        Entity player = Entity_HashMap.get("player");
-        Particle player_physics = player.getParticle();
+    public static void init() {
 
-		POV camera = Renderer.getCamera();
-        camera.followParticle(player_physics);
-		camera.setZoom((camera.getZoom() * Math.pow(1.001, Mouse.getDWheel())));
 
-        Renderer.setRenderingDimensions(Display.getWidth(), Display.getHeight());
+        WorldShapes.init();
+        ImageLibrary.init();
 
-		Renderer.getFill().setColor(ReadableColor.WHITE);
-        Renderer.testResize();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // *frame buffer below
-
-        FrameBufferObject.setFrameBuffer(extra_frame.getFrameBufferIdentifier());
-        glClear(GL_COLOR_BUFFER_BIT);
-		display();
-        FrameBufferObject.removeFrameBuffer();
-
-		Renderer.Renderer_FrameBuffer.drawFrameBuffer(extra_frame.getTexture());
-
-		Display.update();
-	}
-
-	public static void display() {
-		for (Entity x : Entity_HashMap.values()) {
-			Renderer.Renderer_Entity.draw(x);
-		}
-
-	}
-
-	public static void init() {
-
-		Renderer.init();
-		ImageLibrary.init();
-
-        ImageLibrary.addImage("texture", "gooby");
-        ImageLibrary.addImage("texel", "sanic");
-        ImageLibrary.addImage("smile", "spoder");
-        ImageLibrary.addImage("glass", "sanic");
-        ImageLibrary.addImage("zen", "sky");
+        ImageLibrary.addImage("texture", "bush");
+        ImageLibrary.addImage("texel", "warning");
+        ImageLibrary.addImage("smile", "defcon");
+        ImageLibrary.addImage("glass", "computer");
+        ImageLibrary.addImage("zen", "ice");
         ImageLibrary.addImage("stripes", "sky");
 
-
-		Entity_HashMap.put("00", new Entity(-160, -40, 20, ImageLibrary.get("texture")));
-		Entity_HashMap.put("01", new Entity(0, -40, 30, ImageLibrary.get("zen")));
-		Entity_HashMap.put("02", new Entity(160, -40, 40, ImageLibrary.get("texture")));
-		Entity_HashMap.put("10", new Entity(-160, 50, 30, ImageLibrary.get("glass")));
-		Entity_HashMap.put("11", new Entity(0, 50, 20, ImageLibrary.get("texel")));
-		Entity_HashMap.put("12", new Entity(160, 50, 40, ImageLibrary.get("zen")));
+        worldOne = new World();
 
         for (int i = 0; i < 100; i++) {
-            Entity_HashMap.put( rand(0,1000) + "",generateRandomEntity());
+            worldOne.Entity_HashMap.put(Calculation.rand(0, 1000) + "", generateRandomEntity());
         }
 
-        Entity_HashMap.put("player", new Entity(12, 12, 12, ImageLibrary.get("smile")));
+        worldOne.Entity_HashMap.put("player", new Entity(12, 12, 12, ImageLibrary.get("smile")));
+        mainCamera = new POV(worldOne.Entity_HashMap.get("player").getParticle().getPositionVector(),Display.getWidth(), Display.getHeight(), 0,  5, worldOne);
 
-	}
-
-    public static String names[] = {"texture", "zen", "glass", "texel", "smile"};
-
-    public static double rand(float start, float end){
-        return (Math.random() * (end - start) + start);
     }
 
-    public static Entity generateRandomEntity(){
-        return new Entity(rand(-1000, 1000), rand(-1000, 1000), rand(4, 256), ImageLibrary.get(names[(int)rand(0, names.length-1)]));
+    public static Entity generateRandomEntity() {
+        return new Entity(Calculation.rand(-1000, 1000), Calculation.rand(-1000, 1000), Calculation.rand(2, 200), ImageLibrary.get(names[(int)Calculation.rand(0, names.length - 1)]));
     }
 
-    public static Entity getPlayerEntity(){
-        return Entity_HashMap.get("player");
+    public static Entity getPlayerEntity() {
+        return mainCamera.world.Entity_HashMap.get("player");
     }
 }

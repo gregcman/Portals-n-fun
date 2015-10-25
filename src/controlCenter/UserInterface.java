@@ -1,22 +1,21 @@
 package controlCenter;
 
 import math.Complex;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import world.render.Renderers.Renderer;
+import org.lwjgl.opengl.Display;
+import world.render.WorldShapes;
 import world.things.Entity;
 import world.things.Particle;
-
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.Display;
 
 
 public class UserInterface {
 
 
-	public static boolean asciiLib[] = new boolean[257];
+    public static boolean asciiLib[] = new boolean[257];
 
 
-	public static void iterate() {
+    public static void iterate() {
 
         while (Keyboard.next()) {
             asciiLib[Keyboard.getEventKey()] = Keyboard.getEventKeyState();
@@ -61,17 +60,5 @@ public class UserInterface {
         addvel.rotate_to(player.getRotation());
 
         player.getVelocityVector().plus_to(addvel);
-    }
-
-    public static class MouseHandler {
-        public static Complex getWhereMouse() {
-            return whereMouse;
-        }
-        public static Complex whereMouse;
-
-        public static void iterate(){
-            whereMouse = Renderer.getCamera().getCoordinateIn(Mouse.getX(), Mouse.getY());
-        }
-
     }
 }

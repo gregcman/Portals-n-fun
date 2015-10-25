@@ -1,42 +1,42 @@
 package math;
 
 import world.things.Particle;
-import math.Complex;
 
 public class Projectile {
 
-	private Particle coord = new Particle();
-	private Complex velocity = new Complex(0, 0);
+    private Particle coord = new Particle();
+    private Complex velocity = new Complex(0, 0);
 
-	public Projectile() {
+    public Projectile() {
 
-	}
+    }
 
-	public Projectile(Particle place) {
-		coord = place;
-	}
+    public Projectile(Particle place) {
+        coord = place;
+    }
 
-	public Projectile(Complex position, Complex c) {
-		coord.getPositionVector().setNumber(c);
-		velocity = new Complex(position.x+c.x, position.y+c.y);
-	}
+    public Projectile(Complex position, Complex c) {
+        coord.getPositionVector().setNumber(c);
+        velocity = new Complex(position.x + c.x, position.y + c.y);
+    }
 
-	public Complex getVelocity() {
-		return velocity;
-	}
-	public void setVelocity(Complex p) {
-		velocity = p;
-	}
+    public Complex getVelocity() {
+        return velocity;
+    }
 
-	public Particle getCoords() {
-		return coord;
-	}
+    public void setVelocity(Complex p) {
+        velocity = p;
+    }
 
-	public void setCoords(Particle coords) {
-		this.coord = coords;
-	}
+    public Particle getCoords() {
+        return coord;
+    }
 
-	public Complex getIdealNextCoords(){
-		return new Complex(coord.getPositionVector().x+velocity.x,coord.getPositionVector().y+velocity.y);
-	}
+    public void setCoords(Particle coords) {
+        this.coord = coords;
+    }
+
+    public Complex getIdealNextCoords() {
+        return new Complex(coord.getPositionVector().x + velocity.x, coord.getPositionVector().y + velocity.y);
+    }
 }

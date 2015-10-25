@@ -1,6 +1,7 @@
 package world.render;
 
 import math.Complex;
+import org.lwjgl.opengl.Display;
 import org.newdawn.slick.opengl.Texture;
 import world.things.Entity;
 import world.things.Particle;
@@ -10,11 +11,13 @@ import static org.lwjgl.opengl.GL11.*;
 //This class handles all the rendering done. 
 public class WorldShapes extends Render {
 
-    protected static POV camera = new POV();
+    public static POV camera;
 
     public static POV getCamera() {
         return camera;
     }
+
+    public static void setCamera(POV cam){camera = cam;}
 
     public static void draw(Entity sprite) {
         Particle p = sprite.getParticle();
@@ -23,9 +26,12 @@ public class WorldShapes extends Render {
 
 
     private static void camMatrix() {
-        glTranslated(texture_dimensions_width >> 1, texture_dimensions_height >> 1, 0);
-        glRotated(camera.getParticle().getRotation() * 180 / Math.PI, 0, 0, 1);
-        glTranslated(-texture_dimensions_width >> 1, -texture_dimensions_height >> 1, 0);
+        glTranslated(camera.width >> 1, camera.height >> 1, 0);
+        glRotated(camera.orientation * 180 / Math.PI, 0, 0, 1);
+        glTranslated(-camera.width >> 1, -camera.height >> 1, 0);
+        glTranslated(Display.getWidth() / 2, Display.getHeight() / 2,0);
+        glScaled(camera.getZoom(), camera.getZoom(), 0);
+        glTranslated(- camera.position_Vector.x, -camera.position_Vector.y,0);
     }
 
     public static void drawCircle(double cx, double cy, double r, int num_segments) {
@@ -41,7 +47,7 @@ public class WorldShapes extends Render {
 
         glBegin(GL_POLYGON);
         for (int ii = 0; ii < num_segments; ii++) {
-            glVertex2d(camera.correctx(x + cx), camera.correcty(y + cy));// output vertex
+            glVertex2d(x, y);// output vertex
 
             // apply the rotation matrix
             t = x;
@@ -60,8 +66,8 @@ public class WorldShapes extends Render {
         camMatrix();
 
         glBegin(GL_LINE_STRIP);
-        glVertex2d(camera.correctx(x1), camera.correcty(y1));
-        glVertex2d(camera.correctx(x2), camera.correcty(y2));
+        glVertex2d(x1, y1);
+        glVertex2d(x2, y2);
         glEnd();
         glPopMatrix();
 
@@ -80,42 +86,25 @@ public class WorldShapes extends Render {
 
         // draw quad
         glPushMatrix();
-        x *= camera.getParticle().getSize() * camera.getZoom();
-        y *= camera.getParticle().getSize() * camera.getZoom();
-
         camMatrix();
 
         glTranslated(x, y, 0);
-
-        double sinHelp = Math.sin(rot + Math.PI / 4);
-        double cosHelp = Math.cos(rot + Math.PI / 4);
+        glRotated(rot * 180/Math.PI, 0, 0, 69);
 
         glBegin(GL_QUADS);
         glTexCoord2d(0, 1);
-        glVertex2d(camera.correctx(-l1 * cosHelp), camera.correcty(-l2 * sinHelp));
+        glVertex2d(-l1, -l2);
 
         glTexCoord2d(0, 0);
-        glVertex2d(camera.correctx(-l1 * sinHelp), camera.correcty(+l2 * cosHelp));
+        glVertex2d(-l1, +l2);
 
         glTexCoord2d(1, 0);
-        glVertex2d(camera.correctx(+l1 * cosHelp), camera.correcty(+l2 * sinHelp));
+        glVertex2d(+l1, +l2);
 
         glTexCoord2d(1, 1);
-        glVertex2d(camera.correctx(+l1 * sinHelp), camera.correcty(-l2 * cosHelp));
+        glVertex2d(+l1, -l2);
         glEnd();
 
         glPopMatrix();
-    }
-
-
-    public static float max(float a, float b) {
-        if (a < b) {
-            return b;
-        } else return a;
-    }
-
-    public static void setRenderingDimensions(int x, int y) {
-        texture_dimensions_width = x;
-        texture_dimensions_height = y;
     }
 }

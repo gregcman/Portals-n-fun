@@ -5,11 +5,9 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 import org.lwjgl.util.Color;
-
-import org.lwjgl.util.ReadableColor;
 import org.newdawn.slick.opengl.Texture;
 import world.render.POV;
-import world.render.OpenglInitializer;
+import world.render.Render;
 import world.things.Entity;
 import world.things.Particle;
 
@@ -18,72 +16,80 @@ import static org.lwjgl.opengl.GL11.*;
 //This class handles all the rendering done. 
 public class Renderer {
 
-	protected static POV camera = new POV();
-
-	public static Color stroke = new Color();
-
-	public static Color fill = new Color();
-
-	public static Color getFill() {
-		return fill;
-	}
-
-	public static Color getStroke() {
-		return stroke;
-	}
-
+    public static Color stroke = new Color();
+    public static Color fill = new Color();
     public static int texture_dimensions_width;
     public static int texture_dimensions_height;
+    protected static POV camera = new POV();
+
+    public static Color getFill() {
+        return fill;
+    }
 
     public static void setFill(Color fill) {
-		Renderer.fill = fill;
-	}
+        Renderer.fill = fill;
+    }
 
-	public static void setStroke(Color stroke) {
-		Renderer.stroke = stroke;
-	}
+    public static Color getStroke() {
+        return stroke;
+    }
+
+    public static void setStroke(Color stroke) {
+        Renderer.stroke = stroke;
+    }
 
 
-	public static void init() {
-		// OpenGL
-		OpenglInitializer.initGL();
-		OpenglInitializer.resizeGL();
-	}
-	
-	public static void testResize() {
-		if (Display.wasResized()) {
-			OpenglInitializer.resizeGL();
-		}
-	}
+    public static void init() {
+        // OpenGL
+        Render.OpenglInitializer.initGL();
+        Render.OpenglInitializer.resizeGL();
+    }
 
-	public static POV getCamera() {
-		return camera;
-	}
-
-	public static class Renderer_Entity extends Renderer {
-        public static void draw(Entity sprite) {
-            Particle p = sprite.getParticle();
-            Renderer_TexturedShapes.drawQuad(p.getPositionVector().x, p.getPositionVector().y,p.getSize(), p.getSize(), p.getRotation(), sprite.getImage());
+    public static void testResize() {
+        if (Display.wasResized()) {
+            Render.OpenglInitializer.resizeGL();
         }
     }
 
-    public static void graphicsLibraryColor(){
+    public static POV getCamera() {
+        return camera;
+    }
+
+    public static void graphicsLibraryColor() {
         glColor4f(fill.getRed() >> 8, fill.getGreen() >> 8, fill.getBlue() >> 8, fill.getAlpha() >> 8);
     }
 
-	public static class Renderer_Shapes extends Renderer {
+    public static float max(float a, float b) {
+        if (a < b) {
+            return b;
+        } else return a;
+    }
+
+    public static void setRenderingDimensions(int x, int y) {
+        texture_dimensions_width = x;
+        texture_dimensions_height = y;
+    }
+
+    public static class Renderer_Entity extends Renderer {
+        public static void draw(Entity sprite) {
+            Particle p = sprite.getParticle();
+            Renderer_TexturedShapes.drawQuad(p.getPositionVector().x, p.getPositionVector().y, p.getSize(), p.getSize(), p.getRotation(), sprite.getImage());
+        }
+    }
+
+    public static class Renderer_Shapes extends Renderer {
         public static void drawCircle(double cx, double cy, double r, int num_segments) {
             graphicsLibraryColor();
             glDisable(GL_TEXTURE_2D);
             double theta = 2 * 3.1415926 / num_segments;
-            double c =  Math.cos(theta);// precalculate the sine and cosine
+            double c = Math.cos(theta);// precalculate the sine and cosine
             double s = Math.sin(theta);
             double t;
             double x = r;// we start at angle = 0
             double y = 0;
             glPushMatrix();
             glTranslated(texture_dimensions_width >> 1, texture_dimensions_height >> 1, 0);
-            glRotated(camera.getParticle().getRotation() * 180/Math.PI, 0, 0, 7);
+            glRotated(camera.getParticle().getRotation() * 180 / Math.PI, 0, 0, 7);
             glTranslated(-texture_dimensions_width >> 1, -texture_dimensions_height >> 1, 0);
 
             glBegin(GL_POLYGON);
@@ -100,7 +106,7 @@ public class Renderer {
             glEnable(GL_TEXTURE_2D);
         }
 
-        public static void drawRect(double x1, double y1, double x2, double y2){
+        public static void drawRect(double x1, double y1, double x2, double y2) {
             graphicsLibraryColor();
             glDisable(GL_TEXTURE_2D);
 
@@ -119,7 +125,7 @@ public class Renderer {
             graphicsLibraryColor();
             glPushMatrix();
             glTranslated(texture_dimensions_width / 2, texture_dimensions_height / 2, 0);
-            glRotated(camera.getParticle().getRotation() * 180/Math.PI, 0, 0, 1);
+            glRotated(camera.getParticle().getRotation() * 180 / Math.PI, 0, 0, 1);
             glTranslated(-texture_dimensions_width / 2, -texture_dimensions_height / 2, 0);
 
             glBegin(GL_LINE_STRIP);
@@ -137,11 +143,11 @@ public class Renderer {
     }
 
     //This guy draws quads with textures on them
-	public static class Renderer_TexturedShapes extends Renderer{
-        public static void drawQuad(double x, double y, double l1, double l2,double rot, Texture t) {
+    public static class Renderer_TexturedShapes extends Renderer {
+        public static void drawQuad(double x, double y, double l1, double l2, double rot, Texture t) {
             t.bind();
             // set the color of the quad (R,G,B,A)
-            glColor4d(fill.getRed() / 255f, fill.getGreen() / 255f,fill.getBlue() / 255f, fill.getAlpha() / 255f);
+            glColor4d(fill.getRed() / 255f, fill.getGreen() / 255f, fill.getBlue() / 255f, fill.getAlpha() / 255f);
 
             // draw quad
             glPushMatrix();
@@ -149,7 +155,7 @@ public class Renderer {
             y *= camera.getParticle().getSize() * camera.getZoom();
 
             glTranslated(texture_dimensions_width / 2, texture_dimensions_height / 2, 0);
-            glRotated(camera.getParticle().getRotation() * 180/ Math.PI, 0, 0, 1);
+            glRotated(camera.getParticle().getRotation() * 180 / Math.PI, 0, 0, 1);
             glTranslated(-texture_dimensions_width / 2, -texture_dimensions_height / 2, 0);
 
             glTranslated(x, y, 0);
@@ -175,14 +181,7 @@ public class Renderer {
         }
     }
 
-    public static float max(float a, float b){
-        if (a < b){
-            return b;
-        }
-        else return a;
-    }
-
-    public static class Renderer_FrameBuffer extends Renderer{
+    public static class Renderer_FrameBuffer extends Renderer {
         public static void drawFrameBuffer(Texture texture) {
             texture.bind();
 
@@ -193,12 +192,12 @@ public class Renderer {
             float texture_height = texture.getTextureHeight();
 
             Renderer.getFill().setColor(Color.GREEN);
-            Renderer_Shapes.drawRect(0,0,texture_dimensions_width,texture_dimensions_height);
+            Renderer_Shapes.drawRect(0, 0, texture_dimensions_width, texture_dimensions_height);
 
             float x1 = 0;
             float y1 = 0;
-            float x2 = texture_dimensions_width/texture_width;
-            float y2 = texture_dimensions_height/texture_height;
+            float x2 = texture_dimensions_width / texture_width;
+            float y2 = texture_dimensions_height / texture_height;
 
             glColor4d(1, 1, 1, 1f);
             glPushMatrix();
@@ -216,10 +215,5 @@ public class Renderer {
 
 
         }
-    }
-
-    public static void setRenderingDimensions(int x, int y){
-        texture_dimensions_width = x;
-        texture_dimensions_height = y;
     }
 }
