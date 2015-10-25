@@ -7,14 +7,12 @@ import org.lwjgl.opengl.Display;
 import world.World;
 import world.render.*;
 import world.things.Entity;
-import world.things.MovablePoint;
+import math.Complex;
 
-import world.things.Particle;
 
 public class Controller {
 
     public static FrameBufferObject extra_frame = new FrameBufferObject();
-    public static String names[] = {"texture", "zen", "glass", "texel", "smile"};
     public static POV mainCamera;
     public static World worldOne;
 
@@ -60,26 +58,22 @@ public class Controller {
         WorldShapes.init();
         ImageLibrary.init();
 
-        ImageLibrary.addImage("texture", "bush");
-        ImageLibrary.addImage("texel", "warning");
-        ImageLibrary.addImage("smile", "defcon");
-        ImageLibrary.addImage("glass", "computer");
-        ImageLibrary.addImage("zen", "ice");
-        ImageLibrary.addImage("stripes", "sky");
-
         worldOne = new World();
 
-        for (int i = 0; i < 100; i++) {
-            worldOne.Entity_HashMap.put(Calculation.rand(0, 1000) + "", generateRandomEntity());
+        //Setting up arbitrary testing entities
+        for (int i = -10; i < 10; i++) {
+            for(int j = -10; j<10; j++) {
+                Entity e = new Entity(i * 10, j * 10, 5, ImageLibrary.randomImage());
+                e.getParticle().setVelocityVector(new Complex(Calculation.rand(-0.1f, 0.1f), Calculation.rand(-0.1f, 0.1f)));
+                e.getParticle().setAngularVelocity(Calculation.rand(-1, 1));
+                e.getParticle().setAngularVelocity(Calculation.rand(-100,100));
+                worldOne.Entity_HashMap.put(Calculation.rand(0, 1000) + "", e);
+            }
         }
 
         worldOne.Entity_HashMap.put("player", new Entity(12, 12, 12, ImageLibrary.get("smile")));
         mainCamera = new POV(worldOne.Entity_HashMap.get("player").getParticle().getPositionVector(),Display.getWidth(), Display.getHeight(), 0,  5, worldOne);
 
-    }
-
-    public static Entity generateRandomEntity() {
-        return new Entity(Calculation.rand(-1000, 1000), Calculation.rand(-1000, 1000), Calculation.rand(2, 200), ImageLibrary.get(names[(int)Calculation.rand(0, names.length - 1)]));
     }
 
     public static Entity getPlayerEntity() {

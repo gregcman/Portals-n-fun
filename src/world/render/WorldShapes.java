@@ -85,6 +85,8 @@ public class WorldShapes extends Render {
         t.bind();
 
         // draw quad
+
+
         glPushMatrix();
         camMatrix();
 

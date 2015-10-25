@@ -1,5 +1,6 @@
 package world.render;
 
+import math.Calculation;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 
 public class ImageLibrary {
     private static HashMap<String, Texture> imageLib = new HashMap<String, Texture>();
+    public static String names[] = {"texture", "zen", "glass", "texel", "smile"};
 
     public static Texture get(String s) {
         return imageLib.get(s);
@@ -28,6 +30,12 @@ public class ImageLibrary {
     }
 
     public static void init() {
+        addImage("texture", "bush");
+        addImage("texel", "warning");
+        addImage("smile", "defcon");
+        addImage("glass", "computer");
+        addImage("zen", "ice");
+        addImage("stripes", "sky");
 
     }
 
@@ -40,4 +48,9 @@ public class ImageLibrary {
         }
         return null;
     }
+
+    public static Texture randomImage() {
+        return ImageLibrary.get(names[(int) Calculation.rand(0, names.length - 1)]);
+    }
+
 }
